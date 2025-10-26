@@ -1,0 +1,29 @@
+@prefix besafe: <http://besafe.org/ns/ambiental#> .
+@prefix data:   <http://besafe.org/data/> .
+@prefix rdfs:   <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:    <http://www.w3.org/2001/XMLSchema#> .
+@prefix geo:    <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+
+### Estación 11 (instancia de Estacion)
+data:estacion_11
+    a besafe:Estacion ;
+    rdfs:label "Estación de Calidad del Aire 11 (Pza. España)"@es ;
+    besafe:codigoEstacion 11 .
+
+### Episodio de ozono (instancia de EpisodioOzono)
+data:episodio_O3_20130703
+    a besafe:EpisodioOzono ;
+    rdfs:label "Episodio O₃ 2013-07-03 – Información a la población"@es ;
+    besafe:escenario "INFORMACIÓN A LA POBLACIÓN" ;
+    besafe:inicio "2013-07-03T18:00:00"^^xsd:dateTime ;
+    besafe:fin "2013-07-04T17:00:00"^^xsd:dateTime ;
+    besafe:medidaPoblacion "Comunicación a personas, departamentos y organismos competentes." .
+
+### Medición NO₂ de 2025-01-01 01h (instancia de MedicionHoraria)
+data:medicion_11_NO2_20250101T01
+    a besafe:MedicionHoraria ;
+    rdfs:label "Medición NO₂, E-11, 2025-01-01 01h"@es ;
+    besafe:tieneLugarEn data:estacion_11 ;
+    besafe:magnitud "NO2" ;
+    besafe:valor "29.0"^^xsd:decimal ;
+    besafe:fechaHora "2025-01-01T01:00:00"^^xsd:dateTime .

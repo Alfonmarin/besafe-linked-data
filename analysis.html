@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8"/>
+  <title>Análisis de Datos – BeSafe (Alerta Ambiental)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    body{font-family:Arial,sans-serif;line-height:1.5;margin:2rem;max-width:1000px}
+    h1,h2{color:#2c3e50;margin-top:1.25rem}
+    table{border-collapse:collapse;width:100%;margin:16px 0}
+    th, td{border:1px solid #ccc;padding:8px;text-align:left}
+    th{background:#f5f5f5}
+    .section{margin-bottom:20px}
+    .table-container{overflow-x:auto}
+    .ok{color:green;font-weight:bold}
+    .partial{color:orange;font-weight:bold}
+  </style>
+</head>
+<body>
+  <h1>Análisis de los Datos – BeSafe (Alerta Ambiental)</h1>
+
+  <!-- Sección de Datos -->
+  <section class="section">
+    <h2>1. Análisis de los Datos</h2>
+    <p><strong>Descripción de los datasets:</strong> Los datasets utilizados en esta aplicación incluyen datos meteorológicos, <strong>episodios de ozono</strong> y calidad del aire medida en tiempo real. A continuación se presenta un análisis de los principales atributos de cada dataset:</p>
+    
+    <!-- Datos meteorológicos -->
+<h3>Datos meteorológicos (Tiempo real / Acumulado)</h3>
+<div class="table-container">
+  <table>
+    <tr>
+      <th>Descripción general</th>
+      <td>
+        Este dataset contiene información meteorológica recopilada por las estaciones de control ambiental de Madrid.
+        Incluye valores horarios de magnitudes como temperatura, humedad, presión, viento o radiación solar.
+        Cada fila corresponde a una estación, fecha y tipo de magnitud medida, junto con las 24 horas del día (una columna por hora).
+      </td>
+    </tr>
+    <tr>
+      <th>Dimensiones</th>
+      <td>Decenas de miles de registros y 56 columnas (varía según el periodo descargado).</td>
+    </tr>
+    <tr>
+      <th>Campos (cabeceras exactas)</th>
+      <td>
+        PROVINCIA, MUNICIPIO, ESTACION, MAGNITUD, PUNTO_MUESTREO, ANO, MES, DIA,
+        y pares de columnas de medición y validación por hora:
+        H01–V01, H02–V02, ..., H24–V24.
+      </td>
+    </tr>
+    <tr>
+      <th>Ejemplo de magnitudes (códigos)</th>
+      <td>
+        81: Temperatura del aire (°C) <br/>
+        82: Velocidad del viento (m/s) <br/>
+        83: Dirección del viento (grados) <br/>
+        86: Radiación solar (W/m²) <br/>
+        87: Humedad relativa (%) <br/>
+        88: Presión atmosférica (hPa) <br/>
+        89: Precipitación (mm)
+      </td>
+    </tr>
+    <tr>
+      <th>Rango de valores estimado</th>
+      <td>
+        Temperatura: -10 a 45 °C <br/>
+        Humedad relativa: 0 a 100 % <br/>
+        Velocidad del viento: 0 a 25 m/s <br/>
+        Radiación solar: 0 a 1100 W/m² <br/>
+        Presión atmosférica: 950 a 1030 hPa
+      </td>
+    </tr>
+    <tr>
+      <th>Validación</th>
+      <td>
+        Cada valor horario (H01–H24) tiene un código de validación asociado (V01–V24):
+        <ul>
+          <li><strong>V = válido</strong></li>
+          <li><strong>N = no válido</strong> (valor descartado por error o mantenimiento)</li>
+        </ul>
+        <p><em>Nota:</em> en los CSV “*-updated.csv” usados para RDF se han eliminado las columnas Vxx y solo se mantienen valores horarios cuando la validación era <strong>V</strong>; el resto quedan como celdas vacías.</p>
+      </td>
+    </tr>
+    <tr>
+      <th>Observaciones</th>
+      <td>
+        Los datos provienen de la red municipal de estaciones meteorológicas del Ayuntamiento de Madrid.
+        Se actualizan de forma horaria y se encuentran validados siguiendo los protocolos de calidad del aire.
+      </td>
+    </tr>
+  </table>
+</div>
+
+
+    <!-- Episodios de ozono -->
+<h3>Episodios de ozono</h3>
+<div class="table-container">
+  <table>
+    <tr>
+      <th>Campos (cabeceras exactas)</th>
+      <td>FECHA INICIO, FECHA FIN, EPISODIO OZONO, MEDIDA POBLACION</td>
+    </tr>
+    <tr>
+      <th>Rango temporal</th>
+      <td>Desde 2013-07-03 18:00 hasta 2025-08-07 17:00 (normalizado en los “*-updated.csv” a formato ISO 8601 cuando aplica).</td>
+    </tr>
+    <tr>
+      <th>Observaciones</th>
+      <td>
+        Cada fila representa un episodio con su intervalo de inicio/fin y la medida informativa asociada a la población.<br/>
+        <em>Nota técnica:</em> en el CSV original algunas cabeceras venían corruptas (p. ej. “16:08”); en OpenRefine se renombraron y se combinaron fecha y hora.
+      </td>
+    </tr>
+  </table>
+</div>
+
+
+    <!-- Calidad del aire -->
+  <h3>Calidad del aire (Datos horarios desde 2001)</h3>
+<div class="table-container">
+  <table>
+    <tr>
+      <th>Descripción general</th>
+      <td>
+        Este dataset contiene las mediciones horarias de contaminantes atmosféricos obtenidas por la red de
+        estaciones de control del Ayuntamiento de Madrid. Cada registro representa la concentración medida
+        de un contaminante específico en una estación concreta y una fecha determinada.
+      </td>
+    </tr>
+    <tr>
+      <th>Dimensiones</th>
+      <td>Millones de registros históricos y 56 columnas (según el periodo seleccionado).</td>
+    </tr>
+    <tr>
+      <th>Campos (cabeceras exactas)</th>
+      <td>
+        PROVINCIA, MUNICIPIO, ESTACION, MAGNITUD, PUNTO_MUESTREO, ANO, MES, DIA,
+        y pares de columnas de medición y validación por hora:
+        H01–V01, H02–V02, ..., H24–V24.
+      </td>
+    </tr>
+    <tr>
+      <th>Ejemplo de magnitudes (códigos)</th>
+      <td>
+        1: Dióxido de azufre (SO₂, µg/m³) <br/>
+        6: Monóxido de carbono (CO, mg/m³) <br/>
+        7: Monóxido de nitrógeno (NO, µg/m³) <br/>
+        8: Dióxido de nitrógeno (NO₂, µg/m³) <br/>
+        9: Partículas PM10 (µg/m³) <br/>
+        10: Partículas PM2.5 (µg/m³) <br/>
+        12: Ozono (O₃, µg/m³) <br/>
+        14: Benceno (µg/m³)
+      </td>
+    </tr>
+    <tr>
+      <th>Rango de valores estimado</th>
+      <td>
+        NO₂: 0 a 200 µg/m³ <br/>
+        O₃: 0 a 180 µg/m³ <br/>
+        PM10: 0 a 150 µg/m³ <br/>
+        CO: 0 a 10 mg/m³ <br/>
+        SO₂: 0 a 100 µg/m³
+      </td>
+    </tr>
+    <tr>
+      <th>Validación</th>
+      <td>
+        Cada valor horario (H01–H24) tiene un código de validación asociado (V01–V24):
+        <ul>
+          <li><strong>V = válido</strong> (dato verificado y aceptado)</li>
+          <li><strong>N = no válido</strong> (dato descartado por error o mantenimiento)</li>
+          <li><strong>—</strong> indica ausencia de dato para esa hora</li>
+        </ul>
+        <p><em>Nota:</em> en los CSV “*-updated.csv” usados para RDF se han eliminado las columnas Vxx y solo se mantienen valores horarios cuando la validación era <strong>V</strong>; el resto quedan como celdas vacías.</p>
+      </td>
+    </tr>
+    <tr>
+      <th>Observaciones</th>
+      <td>
+        El dataset abarca registros históricos desde 2001 hasta la fecha actual y constituye una de las fuentes
+        principales para el seguimiento de la calidad del aire en Madrid. Las unidades de medida están normalizadas
+        según la normativa europea (Directiva 2008/50/CE).
+      </td>
+    </tr>
+  </table>
+</div>
+
+
+  <!-- Sección de Licencia -->
+  <section class="section">
+    <h2>2. Análisis de la Licencia</h2>
+    <p><strong>Publicador:</strong> El dataset es publicado por la Dirección General de Sostenibilidad y Control Ambiental del Ayuntamiento de Madrid.</p>
+    <p><strong>Licencia:</strong> Los datasets están disponibles bajo la <a href="http://datos.madrid.es/egob/catalogo/aviso-legal">Licencia de reutilización del Ayuntamiento de Madrid</a>, lo que permite su uso, distribución y modificación en proyectos educativos y no comerciales.</p>
+  </section>
+
+<!-- Sección 3: Estrategia de Nombres de Recursos (actualizada según los .ttl) -->
+<section class="section" id="naming">
+  <h2>3. Estrategia de Nombres de Recursos</h2>
+  <p>La ontología y los datos seguirán la misma estrategia usada en los ficheros Turtle del proyecto, con un
+    <strong>namespace con hash</strong> para la ontología y <strong>URIs con slash</strong> para los datos:</p>
+
+  <div class="table-container">
+    <table>
+      <tr>
+        <th>Ontología (términos)</th>
+        <td>
+          <code>@prefix besafe: &lt;http://besafe.org/ns/ambiental#&gt;</code><br/>
+          (clases y propiedades: <code>besafe:Estacion</code>, <code>besafe:MedicionHoraria</code>, <code>besafe:EpisodioOzono</code>,
+          <code>besafe:tieneLugarEn</code>, <code>besafe:valor</code>, <code>besafe:fechaHora</code>, etc.)
+        </td>
+      </tr>
+      <tr>
+        <th>Datos (instancias)</th>
+        <td>
+          <code>@prefix data: &lt;http://besafe.org/data/&gt;</code><br/>
+          (recursos concretos: estaciones, mediciones, episodios)
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <h3>3.1. Patrones de URIs</h3>
+  <div class="table-container">
+    <table>
+      <tr>
+        <th>Recurso</th>
+        <th>Patrón</th>
+        <th>Ejemplo</th>
+      </tr>
+      <tr>
+        <td>Estación</td>
+        <td><code>http://besafe.org/data/station/{codigo_estacion}</code></td>
+        <td><code>http://besafe.org/data/station/11</code></td>
+      </tr>
+      <tr>
+        <td>Medición horaria</td>
+        <td>
+          <code>http://besafe.org/data/measurement/{station}/{YYYY}/{MM}/{DD}/{HH}</code>
+        </td>
+        <td><code>http://besafe.org/data/measurement/11/2025/01/01/01</code></td>
+      </tr>
+      <tr>
+        <td>Episodio de ozono</td>
+        <td>
+          <code>http://besafe.org/data/episode/{tipo}/{YYYYMMDD}</code>
+        </td>
+        <td><code>http://besafe.org/data/episode/o3/20130703</code></td>
+      </tr>
+    </table>
+  </div>
+
+  <h3>3.2. Reglas de construcción</h3>
+  <ul>
+    <li><strong>Estables y legibles:</strong> usar identificadores estables del dataset (p. ej., <code>codigo_estacion</code>).</li>
+    <li><strong>Normalización:</strong> minúsculas en paths, separador <code>-</code> si es necesario; sin espacios ni tildes.</li>
+    <li><strong>Fechas y horas:</strong> ISO 8601 (<code>YYYY-MM-DD</code>, <code>YYYYMMDD</code> según patrón). Hora local: Europe/Madrid.</li>
+    <li><strong>Tipos y datos:</strong> las clases y propiedades se referencian con <code>besafe:</code>; las instancias con <code>data:</code>.</li>
+  </ul>
+
+  <h3>3.3. Negociación de contenido</h3>
+  <p>Las URIs de datos deben poder <strong>de-referenciarse</strong> y servir distintas representaciones:</p>
+  <ul>
+    <li><code>text/html</code> (vista humana).</li>
+    <li><code>text/turtle</code> o <code>application/ld+json</code> (vista máquina).</li>
+  </ul>
+  <p>Como alternativa, se aceptan sufijos o parámetros (p. ej., <code>.ttl</code>, <code>.jsonld</code> o <code>?_format=ttl</code>).</p>
+
+  <h3>3.4. Persistencia y versionado</h3>
+  <ul>
+    <li><strong>Persistencia:</strong> una vez publicadas, las URIs no se rompen; si un recurso cambia, se actualiza su representación.</li>
+    <li><strong>Versionado (opcional):</strong> si es necesario versionar la ontología, se podrá usar
+      <code>http://besafe.org/ns/ambiental/2025-10-05#</code> manteniendo un alias estable con redirección desde
+      <code>/ns/ambiental#</code>.</li>
+  </ul>
+
+</section>
+
+
+</body>
+</html>
