@@ -1,4 +1,4 @@
-from queries.internal import get_measurements, get_measurements_by_station_and_date
+from queries.internal import get_measurements, get_measurements_by_station_and_date, get_ozone_episodes
 
 def main():
     print("=" * 80)
@@ -39,6 +39,27 @@ def main():
         horas = [f"H{i:02d}: {d[f'H{i:02d}']}" for i in range(1, 25) if d[f'H{i:02d}'] is not None]
         print(f"  {', '.join(horas[:12])}")  # Primera mitad del día
         print(f"  {', '.join(horas[12:])}")  # Segunda mitad del día
-
+    
+    print("\n" + "=" * 80)
+    print("PRUEBA 5: Episodios de ozono (todos)")
+    print("=" * 80)
+    ozone_episodes = get_ozone_episodes()
+    print(f"Total de episodios encontrados: {len(ozone_episodes)}")
+    for ep in ozone_episodes:
+        print(f"\n Fecha inicio: {ep['fecha_inicio']}")
+        print(f" Fecha fin: {ep['fecha_fin']}")
+        print(f"  Escenario: {ep['escenario']}")
+        print(f"  Medida población: {ep['medida_poblacion']}")
+        print(f"  URI: {ep['episodio_uri']}")
+    
+    print("\n" + "=" * 80)
+    print("PRUEBA 6: Episodios de ozono filtrados por fecha")
+    print("=" * 80)
+    ozone_filtered = get_ozone_episodes(fecha_inicio="2025-05-08T00:00:00Z")
+    print(f"Total de episodios desde 2025-05-08: {len(ozone_filtered)}")
+    for ep in ozone_filtered:
+        print(f"\n {ep['fecha_inicio']} → {ep['fecha_fin']}")
+        print(f"  {ep['escenario']}")
+        print(f"  {ep['medida_poblacion']}")
 if __name__ == "__main__":
     main()

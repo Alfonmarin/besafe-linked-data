@@ -125,3 +125,60 @@ def get_measurements_by_station_and_date(estacion=None, fecha=None):
         results.append(measurement)
     
     return results
+
+
+def get_ozone_episodes(fecha_inicio=None, fecha_fin=None):
+    """
+    Obtiene episodios de ozono (activaciones del protocolo por alta contaminación).
+    
+    Args:
+        fecha_inicio (str, optional): Filtrar desde esta fecha (formato ISO, ej: "2025-07-08T00:00:00Z")
+        fecha_fin (str, optional): Filtrar hasta esta fecha (formato ISO)
+    
+    Returns:
+        list: Lista de diccionarios con información de cada episodio de ozono
+    
+    Ejemplos:
+        get_ozone_episodes()  # Todos los episodios
+        get_ozone_episodes(fecha_inicio="2025-07-08T00:00:00Z")
+        get_ozone_episodes(fecha_inicio="2025-07-01T00:00:00Z", fecha_fin="2025-07-31T23:59:59Z")
+    """
+    g = load_graph()
+    
+    # Construir filtros dinámicos, considerando que las fechas son opcionales, evitando crear 4 consultas separadas
+    filters = []
+    if fecha_inicio:
+        filters.append(f'?fechaInicio >= "{fecha_inicio}"^^xsd:dateTime')
+    if fecha_fin:
+        filters.append(f'?fechaFin <= "{fecha_fin}"^^xsd:dateTime')
+    
+    filter_clause = "FILTER (" + " && ".join(filters) + ")" if filters else ""
+    
+    query = PREFIX + """
+    PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+    
+    SELECT ?episodio ?fechaInicio ?fechaFin ?escenario ?medidaPoblacion
+    WHERE {
+        ?episodio a vocab:EpisodioOzono ;
+                  vocab:inicio ?fechaInicio ;
+                  vocab:fin ?fechaFin .
+        
+        OPTIONAL { ?episodio vocab:escenario ?escenario }
+        OPTIONAL { ?episodio vocab:medidaPoblacion ?medidaPoblacion }
+        
+        """ + filter_clause + """
+    }
+    ORDER BY DESC(?fechaInicio)
+    """
+    
+    results = []
+    for row in g.query(query):
+        results.append({
+            "episodio_uri": str(row.episodio),
+            "fecha_inicio": str(row.fechaInicio),
+            "fecha_fin": str(row.fechaFin),
+            "escenario": str(row.escenario) if row.escenario else None,
+            "medida_poblacion": str(row.medidaPoblacion) if row.medidaPoblacion else None,
+        })
+    
+    return results
