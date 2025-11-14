@@ -40,7 +40,6 @@ BeSafe-Linked-Data/
 │ │
 │ ├── utils/
 │ │ ├── rdf_loader.py ← carga del grafo RDF con rdflib
-│ │ ├── parser.py ← parseo de fechas/horas
 │ │ └── alerts.py ← reglas de semáforo (opcional)
 │ │
 │ └── main.py ← pruebas desde terminal
