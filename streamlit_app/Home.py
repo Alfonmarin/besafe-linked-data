@@ -305,17 +305,6 @@ elif query_type == "🔗 Linked Data":
                             st.markdown(f"**📊 Punto Muestreo:** {row['punto_muestreo']}")
                             st.caption("El enlace owl:sameAs conecta nuestra medición con un concepto en Wikidata, demostrando Linked Data")
                 
-                # Información sobre Linked Data
-                st.info("""
-                **💡 ¿Qué es Linked Data?**
-                
-                Esta consulta demuestra el concepto de **Linked Data** usando la propiedad `owl:sameAs` 
-                que conecta nuestros recursos locales con recursos externos en Wikidata. Esto permite:
-                - ✅ Enriquecer nuestros datos con información externa
-                - ✅ Interoperabilidad entre diferentes fuentes de datos
-                - ✅ Navegación entre datasets relacionados
-                - ✅ Reutilización de identificadores comunes
-                """)
             else:
                 st.warning("⚠️ No se encontraron mediciones con los filtros aplicados")
                 st.info("💡 Intenta modificar o eliminar los filtros")
@@ -407,21 +396,6 @@ elif query_type == "📈 Estadísticas Agregadas":
                     # Mostrar solo los primeros 20 para no saturar
                     st.bar_chart(df_chart[['promedio']].head(20))
                     st.caption("Promedio de valores por Estación-Magnitud (primeras 20 agrupaciones)")
-                
-                # Información sobre agregación
-                st.info("""
-                **💡 Funciones de Agregación SPARQL**
-                
-                Esta consulta utiliza las siguientes funciones de agregación:
-                - **COUNT(?)** - Cuenta el número de mediciones
-                - **AVG(?)** - Calcula el promedio de los valores
-                - **MAX(?)** - Encuentra el valor máximo
-                - **MIN(?)** - Encuentra el valor mínimo
-                - **GROUP BY** - Agrupa resultados por estación y magnitud
-                
-                Estas funciones permiten análisis estadísticos directamente en SPARQL sin necesidad
-                de procesar los datos en la aplicación.
-                """)
             else:
                 st.warning("⚠️ No se encontraron estadísticas con los filtros aplicados")
                 st.info("💡 Intenta modificar o eliminar los filtros")
