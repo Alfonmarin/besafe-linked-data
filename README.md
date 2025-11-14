@@ -23,6 +23,7 @@ La aplicación funciona **100% en local**, como indicó el profesor.
 
 ## 📂 2. Estructura del Proyecto
 
+```text
 BeSafe-Linked-Data/
 │
 ├── data/
@@ -49,6 +50,7 @@ BeSafe-Linked-Data/
 │
 ├── requirements.txt ← dependencias
 └── README.md ← este documento
+```
 
 ---
 
