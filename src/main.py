@@ -1,4 +1,4 @@
-from queries.internal import get_measurements, get_measurements_by_station_and_date, get_ozone_episodes
+from queries.internal import get_measurements, get_measurements_by_station_and_date, get_ozone_episodes, get_measurements_with_linked_data
 
 def main():
     print("=" * 80)
@@ -61,5 +61,32 @@ def main():
         print(f"\n {ep['fecha_inicio']} → {ep['fecha_fin']}")
         print(f"  {ep['escenario']}")
         print(f"  {ep['medida_poblacion']}")
+    
+    print("\n" + "=" * 80)
+    print("PRUEBA 7: Mediciones con Linked Data (owl:sameAs) - Primeras 10")
+    print("=" * 80)
+    ## Salen datos con la misma URI para Wikidata, habria que mirar reconcilacion con otra propiedad
+    ## Magnitud 12 (NO₂) → debería enlazar a Wikidata de dióxido de nitrógeno
+    ## Magnitud 20 (SO₂) → debería enlazar a Wikidata de dióxido de azufre
+    ## Magnitud 7 (O₃) → debería enlazar a Wikidata de ozono
+    ## Magnitud 10 (partículas) → debería enlazar a Wikidata de material particulado
+    ## etc.
+    linked_data = get_measurements_with_linked_data(limit=10)
+    print(f"Total de mediciones con enlaces: {len(linked_data)}")
+    for ld in linked_data:
+        print(f"\nEstación: {ld['estacion']}, Fecha: {ld['fecha']}, Magnitud: {ld['magnitud']}")
+        print(f"  Punto Muestreo: {ld['punto_muestreo']}")
+        print(f"  Enlace Wikidata: {ld['enlace_wikidata']}")
+    
+    print("\n" + "=" * 80)
+    print("PRUEBA 8: Linked Data filtrado por estación '36'")
+    print("=" * 80)
+    linked_station = get_measurements_with_linked_data(estacion="36", limit=5)
+    print(f"Total de mediciones de estación 36 con enlaces: {len(linked_station)}")
+    for ld in linked_station:
+        print(f"\nFecha: {ld['fecha']}, Magnitud: {ld['magnitud']}")
+        print(f"  URI local: {ld['medicion_uri']}")
+        print(f"  URI Wikidata: {ld['enlace_wikidata']}")
+
 if __name__ == "__main__":
     main()

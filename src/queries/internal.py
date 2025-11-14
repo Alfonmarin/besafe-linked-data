@@ -182,3 +182,67 @@ def get_ozone_episodes(fecha_inicio=None, fecha_fin=None):
         })
     
     return results
+
+
+def get_measurements_with_linked_data(estacion=None, magnitud=None, limit=100):
+    """
+    Obtiene mediciones de calidad del aire junto con sus enlaces a recursos externos (owl:sameAs).
+    Esta consulta demuestra el concepto de Linked Data conectando con Wikidata.
+    
+    Args:
+        estacion (str, optional): ID de la estación para filtrar (ej: "36", "60")
+        magnitud (str, optional): Código de magnitud para filtrar (ej: "10" para partículas)
+        limit (int, optional): Número máximo de resultados (default: 100)
+    
+    Returns:
+        list: Lista de diccionarios con mediciones y enlaces externos
+    
+    Ejemplos:
+        get_measurements_with_linked_data()  # Todos los enlaces disponibles
+        get_measurements_with_linked_data(estacion="36")  # Enlaces de una estación específica
+        get_measurements_with_linked_data(magnitud="10", limit=50)  # Enlaces por magnitud
+    """
+    g = load_graph()
+    
+    # Construir filtros dinámicos
+    filters = []
+    if estacion:
+        filters.append(f'?estacion = "{estacion}"')
+    if magnitud:
+        filters.append(f'?magnitud = "{magnitud}"')
+    
+    filter_clause = "FILTER (" + " && ".join(filters) + ")" if filters else ""
+    
+    query = PREFIX + """
+    PREFIX owl: <http://www.w3.org/2002/07/owl#>
+    
+    SELECT ?medicion ?estacion ?fecha ?magnitud ?puntoMuestreo ?enlaceExterno
+    WHERE {
+        ?medicion a vocab:MedicionAire ;
+                  vocab:estacion ?estacion ;
+                  vocab:fecha ?fecha ;
+                  vocab:magnitud ?magnitud .
+        
+        OPTIONAL { ?medicion vocab:puntoMuestreo ?puntoMuestreo }
+        
+        # owl:sameAs conecta nuestra medición con recursos de Wikidata (Linked Data)
+        OPTIONAL { ?medicion owl:sameAs ?enlaceExterno }
+        
+        """ + filter_clause + """
+    }
+    ORDER BY ?fecha ?estacion
+    LIMIT """ + str(limit) + """
+    """
+    
+    results = []
+    for row in g.query(query):
+        results.append({
+            "medicion_uri": str(row.medicion),
+            "estacion": str(row.estacion),
+            "fecha": str(row.fecha),
+            "magnitud": str(row.magnitud),
+            "punto_muestreo": str(row.puntoMuestreo) if row.puntoMuestreo else None,
+            "enlace_wikidata": str(row.enlaceExterno) if row.enlaceExterno else None,
+        })
+    
+    return results
