@@ -154,20 +154,23 @@ def get_ozone_episodes(fecha_inicio=None, fecha_fin=None):
     
     filter_clause = "FILTER (" + " && ".join(filters) + ")" if filters else ""
     
+    # Usar GROUP_CONCAT para agrupar múltiples medidas de población en una sola fila
     query = PREFIX + """
     PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
     
-    SELECT ?episodio ?fechaInicio ?fechaFin ?escenario ?medidaPoblacion
+    SELECT ?episodio ?fechaInicio ?fechaFin ?escenario 
+           (GROUP_CONCAT(?medida; separator=" | ") AS ?medidaPoblacion)
     WHERE {
         ?episodio a vocab:EpisodioOzono ;
                   vocab:inicio ?fechaInicio ;
                   vocab:fin ?fechaFin .
         
         OPTIONAL { ?episodio vocab:escenario ?escenario }
-        OPTIONAL { ?episodio vocab:medidaPoblacion ?medidaPoblacion }
+        OPTIONAL { ?episodio vocab:medidaPoblacion ?medida }
         
         """ + filter_clause + """
     }
+    GROUP BY ?episodio ?fechaInicio ?fechaFin ?escenario
     ORDER BY DESC(?fechaInicio)
     """
     
@@ -246,3 +249,135 @@ def get_measurements_with_linked_data(estacion=None, magnitud=None, limit=100):
         })
     
     return results
+
+
+def get_aggregated_statistics(estacion=None, magnitud=None, fecha=None):
+    """
+    Obtiene estadísticas agregadas de calidad del aire (promedio, máximo, mínimo, conteo).
+    Demuestra el uso de funciones de agregación en SPARQL: AVG, MAX, MIN, COUNT.
+    
+    Args:
+        estacion (str, optional): ID de la estación para filtrar (ej: "11", "36")
+        magnitud (str, optional): Código de magnitud para filtrar (ej: "10", "12")
+        fecha (str, optional): Fecha para filtrar (formato ISO)
+    
+    Returns:
+        list: Lista de diccionarios con estadísticas agregadas por estación y magnitud
+    
+    Ejemplos:
+        get_aggregated_statistics()  # Todas las estadísticas
+        get_aggregated_statistics(estacion="11")  # Estadísticas de una estación
+        get_aggregated_statistics(magnitud="10")  # Estadísticas de una magnitud
+    """
+    g = load_graph()
+    
+    # Construir filtros dinámicos
+    filters = []
+    if estacion:
+        filters.append(f'?estacion = "{estacion}"')
+    if magnitud:
+        filters.append(f'?magnitud = "{magnitud}"')
+    if fecha:
+        filters.append(f'?fecha = "{fecha}"^^xsd:dateTime')
+    
+    filter_clause = "FILTER (" + " && ".join(filters) + ")" if filters else ""
+    
+    # Consulta de agregación con AVG, MAX, MIN, COUNT
+    query = PREFIX + """
+    PREFIX xsd: <http://www.w3.org/2001/XMLSchema#>
+    
+    SELECT ?estacion ?magnitud
+           (COUNT(?m) AS ?total_mediciones)
+           (AVG(?valor) AS ?promedio)
+           (MAX(?valor) AS ?maximo)
+           (MIN(?valor) AS ?minimo)
+    WHERE {
+        ?m a vocab:MedicionAire ;
+           vocab:estacion ?estacion ;
+           vocab:fecha ?fecha ;
+           vocab:magnitud ?magnitud ;
+           vocab:H01 ?valor .
+        
+        """ + filter_clause + """
+    }
+    GROUP BY ?estacion ?magnitud
+    ORDER BY ?estacion ?magnitud
+    """
+    
+    results = []
+    for row in g.query(query):
+        results.append({
+            "estacion": str(row.estacion),
+            "magnitud": str(row.magnitud),
+            "total_mediciones": int(row.total_mediciones) if row.total_mediciones else 0,
+            "promedio": round(float(row.promedio), 2) if row.promedio else None,
+            "maximo": float(row.maximo) if row.maximo else None,
+            "minimo": float(row.minimo) if row.minimo else None,
+        })
+    
+    return results
+
+
+def get_available_stations():
+    """
+    Obtiene la lista de estaciones únicas disponibles en el dataset.
+    Útil para poblar desplegables en la interfaz.
+    
+    Returns:
+        list: Lista de IDs de estaciones ordenadas numéricamente
+    """
+    g = load_graph()
+    
+    query = PREFIX + """
+    SELECT DISTINCT ?estacion
+    WHERE {
+        ?m a vocab:MedicionAire ;
+           vocab:estacion ?estacion .
+    }
+    ORDER BY ?estacion
+    """
+    
+    stations = []
+    for row in g.query(query):
+        stations.append(str(row.estacion))
+    
+    # Ordenar numéricamente (en caso de que sean números)
+    try:
+        stations_sorted = sorted(stations, key=lambda x: int(x))
+        return stations_sorted
+    except ValueError:
+        # Si no son todos números, devolver ordenación alfabética
+        return sorted(stations)
+
+
+def get_available_magnitudes():
+    """
+    Obtiene la lista de magnitudes (contaminantes) únicas disponibles en el dataset.
+    Útil para poblar desplegables en la interfaz.
+    
+    Returns:
+        list: Lista de códigos de magnitud ordenados numéricamente
+    """
+    g = load_graph()
+    
+    query = PREFIX + """
+    SELECT DISTINCT ?magnitud
+    WHERE {
+        ?m a vocab:MedicionAire ;
+           vocab:magnitud ?magnitud .
+    }
+    ORDER BY ?magnitud
+    """
+    
+    magnitudes = []
+    for row in g.query(query):
+        magnitudes.append(str(row.magnitud))
+    
+    # Ordenar numéricamente (en caso de que sean números)
+    try:
+        magnitudes_sorted = sorted(magnitudes, key=lambda x: int(x))
+        return magnitudes_sorted
+    except ValueError:
+        # Si no son todos números, devolver ordenación alfabética
+        return sorted(magnitudes)
+
