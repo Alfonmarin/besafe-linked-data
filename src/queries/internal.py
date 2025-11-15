@@ -186,80 +186,98 @@ def get_ozone_episodes(fecha_inicio=None, fecha_fin=None):
     
     return results
 
+# Enlaces de magnitudes (gases) a Wikidata
+MAGNITUD_LINKS = {
+    "1":  "https://www.wikidata.org/wiki/Q5282",     # SO2
+    "6":  "https://www.wikidata.org/wiki/Q2025",     # CO
+    "7":  "https://www.wikidata.org/wiki/Q207843",   # NO
+    "8":  "https://www.wikidata.org/wiki/Q207895",   # NO2
+    "9":  "https://www.wikidata.org/wiki/Q48035980", # PM10
+    "10": "https://www.wikidata.org/wiki/Q48035814", # PM2.5
+    "12": "https://www.wikidata.org/wiki/Q36933",    # O3
+    "14": "https://www.wikidata.org/wiki/Q2270",     # Benceno
+}
 
-def get_measurements_with_linked_data(limit=20, estacion=None, magnitud=None):
+# Enlaces de estaciones a Wikidata (las que has pasado)
+ESTACION_LINKS = {
+    "11": "https://www.wikidata.org/wiki/Q30467128",  # Av. Ramón y Cajal
+    "16": "https://www.wikidata.org/wiki/Q2481371",   # Arturo Soria
+    "17": "https://www.wikidata.org/wiki/Q2480338",   # Villaverde Alto
+    "24": "https://www.wikidata.org/wiki/Q568579",    # Casa de Campo
+    "27": "https://www.wikidata.org/wiki/Q2474414",   # Barajas
+    "35": "https://www.wikidata.org/wiki/Q6080406",   # Plaza del Carmen
+    "36": "https://www.wikidata.org/wiki/Q2076109",   # Moratalaz
+    "38": "https://www.wikidata.org/wiki/Q2420839",   # Cuatro Caminos
+}
+
+def get_measurements_with_linked_data(estacion=None, magnitud=None, limit=100):
     """
-    Devuelve mediciones junto con enlaces owl:sameAs enriquecidos:
-    - Enlace original (si existe en la medición)
-    - Enlace a la magnitud (gas)
-    - Enlace a la estación (wikidata del barrio o zona)
-    Permite filtrar por estación y magnitud.
+    Obtiene mediciones de calidad del aire junto con sus enlaces a recursos externos (owl:sameAs).
+    Demuestra el concepto de Linked Data conectando con Wikidata.
+
+    Args:
+        estacion (str, optional): ID de la estación para filtrar (ej: "36", "60")
+        magnitud (str, optional): Código de magnitud para filtrar (ej: "10" para partículas)
+        limit (int, optional): Número máximo de resultados (default: 100)
+
+    Returns:
+        list[dict]: mediciones + enlaces
     """
+    g = load_graph()
 
-    # Construimos el cuerpo del WHERE
-    where_block = """
-        ?medicion a ns0:MedicionAire ;
-                 ns0:estacion ?est ;
-                 ns0:magnitud ?mag ;
-                 ns0:fecha ?fecha ;
-                 ns0:H01 ?valor ;
-                 ns0:puntoMuestreo ?punto .
+    # Construir filtros dinámicos (igual que versión original)
+    filters = []
+    if estacion:
+        filters.append(f'?estacion = "{estacion}"')
+    if magnitud:
+        filters.append(f'?magnitud = "{magnitud}"')
 
-        OPTIONAL {
-            ?medicion owl:sameAs ?link_medicion .
-        }
+    filter_clause = "FILTER (" + " && ".join(filters) + ")" if filters else ""
 
-        OPTIONAL {
-            BIND( IRI(CONCAT("http://example.org/vocab/magnitud/", STR(?mag))) AS ?magnitud_uri )
-            ?magnitud_uri owl:sameAs ?link_magnitud .
-        }
-
-        OPTIONAL {
-            BIND( IRI(CONCAT("http://example.org/resource/Estacion/", STR(?est))) AS ?estacion_uri )
-            ?estacion_uri owl:sameAs ?link_estacion .
-        }
-    """
-
-    # Añadimos filtros según lo que haya elegido el usuario en la UI
-    if estacion is not None:
-        # En el RDF las estaciones son literales tipo "36"
-        where_block += f'\n        FILTER(?est = "{estacion}")'
-
-    if magnitud is not None:
-        # Igual para la magnitud: "8", "10", "12", etc.
-        where_block += f'\n        FILTER(?mag = "{magnitud}")'
-
-    # Montamos la query completa
-    query = f"""
-    PREFIX ns0: <http://example.org/vocab#>
+    query = PREFIX + """
     PREFIX owl: <http://www.w3.org/2002/07/owl#>
 
-    SELECT ?medicion ?est ?mag ?fecha ?valor ?punto
-           ?link_medicion ?link_magnitud ?link_estacion
-    WHERE {{
-    {where_block}
-    }}
-    LIMIT {limit}
+    SELECT ?medicion ?estacion ?fecha ?magnitud ?puntoMuestreo ?enlaceExterno
+    WHERE {
+        ?medicion a vocab:MedicionAire ;
+                  vocab:estacion ?estacion ;
+                  vocab:fecha ?fecha ;
+                  vocab:magnitud ?magnitud .
+
+        OPTIONAL { ?medicion vocab:puntoMuestreo ?puntoMuestreo }
+
+        # owl:sameAs conecta nuestra medición con recursos de Wikidata (Linked Data)
+        OPTIONAL { ?medicion owl:sameAs ?enlaceExterno }
+
+        """ + filter_clause + """
+    }
+    ORDER BY ?fecha ?estacion
+    LIMIT """ + str(limit) + """
     """
 
-    g = load_graph()
-    results = g.query(query)
+    results = []
+    for row in g.query(query):
+        # Valores base (lo de siempre)
+        estacion_val = str(row.estacion)
+        magnitud_val = str(row.magnitud)
 
-    rows = []
-    for r in results:
-        rows.append({
-            "medicion": str(r["medicion"]),
-            "estacion": str(r["est"]),
-            "magnitud": str(r["mag"]),
-            "fecha": str(r["fecha"]),
-            "valor": float(r["valor"]),
-            "punto": str(r["punto"]),
-            "link_medicion": str(r["link_medicion"]) if r["link_medicion"] else None,
-            "link_magnitud": str(r["link_magnitud"]) if r["link_magnitud"] else None,
-            "link_estacion": str(r["link_estacion"]) if r["link_estacion"] else None
-        })
+        item = {
+            "medicion": str(row.medicion),
+            "estacion": estacion_val,
+            "fecha": str(row.fecha),
+            "magnitud": magnitud_val,
+            "punto": str(row.puntoMuestreo) if row.puntoMuestreo else None,
+            # Enlace original de la medición
+            "link_medicion": str(row.enlaceExterno) if row.enlaceExterno else None,
+            # NUEVO: enlaces enriquecidos
+            "link_magnitud": MAGNITUD_LINKS.get(magnitud_val),
+            "link_estacion": ESTACION_LINKS.get(estacion_val),
+        }
 
-    return rows
+        results.append(item)
+
+    return results
+
 
 
 
