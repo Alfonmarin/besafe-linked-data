@@ -289,21 +289,52 @@ elif query_type == "🔗 Linked Data":
                 with col3:
                     st.metric("Magnitudes", df['magnitud'].nunique())
                 with col4:
-                    enlaces_unicos = df['enlace_wikidata'].nunique() if 'enlace_wikidata' in df.columns else 0
+                    enlaces_unicos = (df['link_magnitud'].nunique() + df['link_estacion'].nunique() + df['link_medicion'].nunique())
                     st.metric("Enlaces Únicos", enlaces_unicos)
                 
                 # Mostrar ejemplos de enlaces
-                if 'enlace_wikidata' in df.columns:
-                    st.subheader("🌐 Ejemplos de Enlaces a Wikidata")
-                    enlaces_ejemplo = df[df['enlace_wikidata'].notna()].head(5)
-                    
+                if any(col in df.columns for col in ["link_magnitud", "link_estacion", "link_medicion"]):
+                    st.subheader("🌐 Ejemplos de Enlaces Linked Data (owl:sameAs)")
+                    # Queremos filas que tengan al menos un enlace
+                    enlaces_ejemplo = df[
+                        df[['link_magnitud', 'link_estacion', 'link_medicion']].notna().any(axis=1)
+                    ].head(8)
+
                     for idx, row in enlaces_ejemplo.iterrows():
-                        with st.expander(f"Medición {idx + 1}: Estación {row['estacion']} - Magnitud {row['magnitud']}"):
-                            st.markdown(f"**📍 URI Local:** `{row['medicion_uri']}`")
-                            st.markdown(f"**🔗 Enlace Wikidata:** [{row['enlace_wikidata']}]({row['enlace_wikidata']})")
+                        with st.expander(f"Medición {idx + 1}: Estación {row['estacion']}  |  Magnitud {row['magnitud']}"):
+                            
+                            # --- URI local (medición)
+                            st.markdown(f"**📍 URI Local:** `{row['medicion']}`")
+
+                            # --- Enlace al gas (magnitud)
+                            if row.get("link_magnitud"):
+                                st.markdown(
+                                    f"**🧪 Gas (Magnitud {row['magnitud']}):** "
+                                    f"[{row['link_magnitud']}]({row['link_magnitud']})"
+                                )
+
+                            # --- Enlace a la estación
+                            if row.get("link_estacion"):
+                                st.markdown(
+                                    f"**🏙️ Estación {row['estacion']}:** "
+                                    f"[{row['link_estacion']}]({row['link_estacion']})"
+                                )
+
+                            # --- Enlace antiguo
+                            if row.get("link_medicion"):
+                                st.markdown(
+                                    f"**🔗 Enlace RDF original:** "
+                                    f"[{row['link_medicion']}]({row['link_medicion']})"
+                                )
+
+                            # --- Fecha
                             st.markdown(f"**📅 Fecha:** {row['fecha']}")
-                            st.markdown(f"**📊 Punto Muestreo:** {row['punto_muestreo']}")
-                            st.caption("El enlace owl:sameAs conecta nuestra medición con un concepto en Wikidata, demostrando Linked Data")
+
+                            # --- Punto muestreo
+                            st.markdown(f"**📦 Punto de muestreo:** {row['punto']}")
+                            
+                            st.caption("Estos enlaces owl:sameAs conectan nuestras mediciones con entidades reales en Wikidata.")
+
                 
             else:
                 st.warning("⚠️ No se encontraron mediciones con los filtros aplicados")

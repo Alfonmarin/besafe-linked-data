@@ -7562,3 +7562,79 @@
   ns0:H07 "352"^^xsd:float ;
   ns0:H08 "223"^^xsd:float ;
   ns0:H09 "317"^^xsd:float .
+
+### ============================================================
+### ENLACES DE MAGNITUDES A WIKIDATA (ENRIQUECIMIENTO DEL GRAFO)
+### ============================================================
+
+# SO2
+<http://example.org/vocab/magnitud/1> 
+    owl:sameAs <https://www.wikidata.org/wiki/Q5282> .
+
+# CO
+<http://example.org/vocab/magnitud/6> 
+    owl:sameAs <https://www.wikidata.org/wiki/Q2025> .
+
+# NO
+<http://example.org/vocab/magnitud/7> 
+    owl:sameAs <https://www.wikidata.org/wiki/Q207843> .
+
+# NO2
+<http://example.org/vocab/magnitud/8> 
+    owl:sameAs <https://www.wikidata.org/wiki/Q207895> .
+
+# PM10
+<http://example.org/vocab/magnitud/9> 
+    owl:sameAs <https://www.wikidata.org/wiki/Q48035980> .
+
+# PM2.5
+<http://example.org/vocab/magnitud/10> 
+    owl:sameAs <https://www.wikidata.org/wiki/Q48035814> .
+
+# O3
+<http://example.org/vocab/magnitud/12> 
+    owl:sameAs <https://www.wikidata.org/wiki/Q36933> .
+
+# Benceno
+<http://example.org/vocab/magnitud/14> 
+    owl:sameAs <https://www.wikidata.org/wiki/Q2270> .
+
+
+    
+
+### ============================================================
+### ENLACES DE ESTACIONES A WIKIDATA (PARCIAL - 9 ESTACIONES)
+### ============================================================
+
+# Estación 11 – Av. Ramón y Cajal
+<http://example.org/resource/Estacion/11>
+    owl:sameAs <https://www.wikidata.org/wiki/Q30467128> .
+
+# Estación 16 – Arturo Soria
+<http://example.org/resource/Estacion/16>
+    owl:sameAs <https://www.wikidata.org/wiki/Q2481371> .
+
+# Estación 17 – Villaverde Alto
+<http://example.org/resource/Estacion/17>
+    owl:sameAs <https://www.wikidata.org/wiki/Q2480338> .
+
+# Estación 24 – Casa de Campo
+<http://example.org/resource/Estacion/24>
+    owl:sameAs <https://www.wikidata.org/wiki/Q568579> .
+
+# Estación 27 – Barajas
+<http://example.org/resource/Estacion/27>
+    owl:sameAs <https://www.wikidata.org/wiki/Q2474414> .
+
+# Estación 35 – Plaza del Carmen
+<http://example.org/resource/Estacion/35>
+    owl:sameAs <https://www.wikidata.org/wiki/Q6080406> .
+
+# Estación 36 – Moratalaz
+<http://example.org/resource/Estacion/36>
+    owl:sameAs <https://www.wikidata.org/wiki/Q2076109> .
+
+# Estación 38 – Cuatro Caminos
+<http://example.org/resource/Estacion/38>
+    owl:sameAs <https://www.wikidata.org/wiki/Q2420839> .
+

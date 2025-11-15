@@ -187,68 +187,68 @@ def get_ozone_episodes(fecha_inicio=None, fecha_fin=None):
     return results
 
 
-def get_measurements_with_linked_data(estacion=None, magnitud=None, limit=100):
+def get_measurements_with_linked_data(limit=20, estacion=None, magnitud=None):
     """
-    Obtiene mediciones de calidad del aire junto con sus enlaces a recursos externos (owl:sameAs).
-    Esta consulta demuestra el concepto de Linked Data conectando con Wikidata.
-    
-    Args:
-        estacion (str, optional): ID de la estación para filtrar (ej: "36", "60")
-        magnitud (str, optional): Código de magnitud para filtrar (ej: "10" para partículas)
-        limit (int, optional): Número máximo de resultados (default: 100)
-    
-    Returns:
-        list: Lista de diccionarios con mediciones y enlaces externos
-    
-    Ejemplos:
-        get_measurements_with_linked_data()  # Todos los enlaces disponibles
-        get_measurements_with_linked_data(estacion="36")  # Enlaces de una estación específica
-        get_measurements_with_linked_data(magnitud="10", limit=50)  # Enlaces por magnitud
+    Devuelve mediciones junto con enlaces owl:sameAs enriquecidos:
+    - Enlace original (si existe en la medición)
+    - Enlace a la magnitud (gas)
+    - Enlace a la estación (wikidata del barrio o zona)
     """
-    g = load_graph()
-    
-    # Construir filtros dinámicos
-    filters = []
-    if estacion:
-        filters.append(f'?estacion = "{estacion}"')
-    if magnitud:
-        filters.append(f'?magnitud = "{magnitud}"')
-    
-    filter_clause = "FILTER (" + " && ".join(filters) + ")" if filters else ""
-    
-    query = PREFIX + """
+
+    query = """
+    PREFIX ns0: <http://example.org/vocab#>
     PREFIX owl: <http://www.w3.org/2002/07/owl#>
-    
-    SELECT ?medicion ?estacion ?fecha ?magnitud ?puntoMuestreo ?enlaceExterno
+
+    SELECT ?medicion ?est ?mag ?fecha ?valor ?punto
+           ?link_medicion           # Enlace viejo (si existe)
+           ?link_magnitud           # Enlace al gas
+           ?link_estacion           # Enlace a la estación
     WHERE {
-        ?medicion a vocab:MedicionAire ;
-                  vocab:estacion ?estacion ;
-                  vocab:fecha ?fecha ;
-                  vocab:magnitud ?magnitud .
-        
-        OPTIONAL { ?medicion vocab:puntoMuestreo ?puntoMuestreo }
-        
-        # owl:sameAs conecta nuestra medición con recursos de Wikidata (Linked Data)
-        OPTIONAL { ?medicion owl:sameAs ?enlaceExterno }
-        
-        """ + filter_clause + """
+        ?medicion a ns0:MedicionAire ;
+                 ns0:estacion ?est ;
+                 ns0:magnitud ?mag ;
+                 ns0:fecha ?fecha ;
+                 ns0:H01 ?valor ;
+                 ns0:puntoMuestreo ?punto .
+
+        OPTIONAL {
+            ?medicion owl:sameAs ?link_medicion .
+        }
+
+        OPTIONAL {
+            BIND( IRI(CONCAT("http://example.org/vocab/magnitud/", STR(?mag))) AS ?magnitud_uri )
+            ?magnitud_uri owl:sameAs ?link_magnitud .
+        }
+
+        OPTIONAL {
+            BIND( IRI(CONCAT("http://example.org/resource/Estacion/", STR(?est))) AS ?estacion_uri )
+            ?estacion_uri owl:sameAs ?link_estacion .
+        }
+
     }
-    ORDER BY ?fecha ?estacion
-    LIMIT """ + str(limit) + """
-    """
-    
-    results = []
-    for row in g.query(query):
-        results.append({
-            "medicion_uri": str(row.medicion),
-            "estacion": str(row.estacion),
-            "fecha": str(row.fecha),
-            "magnitud": str(row.magnitud),
-            "punto_muestreo": str(row.puntoMuestreo) if row.puntoMuestreo else None,
-            "enlace_wikidata": str(row.enlaceExterno) if row.enlaceExterno else None,
+    LIMIT """ + str(limit)
+
+    # LA LÍNEA CORRECTA
+    g = load_graph()
+    results = g.query(query)
+
+    rows = []
+    for r in results:
+        rows.append({
+            "medicion": str(r["medicion"]),
+            "estacion": str(r["est"]),
+            "magnitud": str(r["mag"]),
+            "fecha": str(r["fecha"]),
+            "valor": float(r["valor"]),
+            "punto": str(r["punto"]),
+            "link_medicion": str(r["link_medicion"]) if r["link_medicion"] else None,
+            "link_magnitud": str(r["link_magnitud"]) if r["link_magnitud"] else None,
+            "link_estacion": str(r["link_estacion"]) if r["link_estacion"] else None
         })
-    
-    return results
+
+    return rows
+
+
 
 
 def get_aggregated_statistics(estacion=None, magnitud=None, fecha=None):
