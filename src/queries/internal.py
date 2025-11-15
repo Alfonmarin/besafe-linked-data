@@ -193,17 +193,11 @@ def get_measurements_with_linked_data(limit=20, estacion=None, magnitud=None):
     - Enlace original (si existe en la medición)
     - Enlace a la magnitud (gas)
     - Enlace a la estación (wikidata del barrio o zona)
+    Permite filtrar por estación y magnitud.
     """
 
-    query = """
-    PREFIX ns0: <http://example.org/vocab#>
-    PREFIX owl: <http://www.w3.org/2002/07/owl#>
-
-    SELECT ?medicion ?est ?mag ?fecha ?valor ?punto
-           ?link_medicion           # Enlace viejo (si existe)
-           ?link_magnitud           # Enlace al gas
-           ?link_estacion           # Enlace a la estación
-    WHERE {
+    # Construimos el cuerpo del WHERE
+    where_block = """
         ?medicion a ns0:MedicionAire ;
                  ns0:estacion ?est ;
                  ns0:magnitud ?mag ;
@@ -224,11 +218,30 @@ def get_measurements_with_linked_data(limit=20, estacion=None, magnitud=None):
             BIND( IRI(CONCAT("http://example.org/resource/Estacion/", STR(?est))) AS ?estacion_uri )
             ?estacion_uri owl:sameAs ?link_estacion .
         }
+    """
 
-    }
-    LIMIT """ + str(limit)
+    # Añadimos filtros según lo que haya elegido el usuario en la UI
+    if estacion is not None:
+        # En el RDF las estaciones son literales tipo "36"
+        where_block += f'\n        FILTER(?est = "{estacion}")'
 
-    # LA LÍNEA CORRECTA
+    if magnitud is not None:
+        # Igual para la magnitud: "8", "10", "12", etc.
+        where_block += f'\n        FILTER(?mag = "{magnitud}")'
+
+    # Montamos la query completa
+    query = f"""
+    PREFIX ns0: <http://example.org/vocab#>
+    PREFIX owl: <http://www.w3.org/2002/07/owl#>
+
+    SELECT ?medicion ?est ?mag ?fecha ?valor ?punto
+           ?link_medicion ?link_magnitud ?link_estacion
+    WHERE {{
+    {where_block}
+    }}
+    LIMIT {limit}
+    """
+
     g = load_graph()
     results = g.query(query)
 
@@ -247,6 +260,7 @@ def get_measurements_with_linked_data(limit=20, estacion=None, magnitud=None):
         })
 
     return rows
+
 
 
 
