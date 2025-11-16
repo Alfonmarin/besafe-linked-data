@@ -200,15 +200,59 @@ MAGNITUD_LINKS = {
 
 # Enlaces de estaciones a Wikidata (las que has pasado)
 ESTACION_LINKS = {
-    "11": "https://www.wikidata.org/wiki/Q30467128",  # Av. Ramón y Cajal
-    "16": "https://www.wikidata.org/wiki/Q2481371",   # Arturo Soria
-    "17": "https://www.wikidata.org/wiki/Q2480338",   # Villaverde Alto
-    "24": "https://www.wikidata.org/wiki/Q568579",    # Casa de Campo
-    "27": "https://www.wikidata.org/wiki/Q2474414",   # Barajas
-    "35": "https://www.wikidata.org/wiki/Q6080406",   # Plaza del Carmen
-    "36": "https://www.wikidata.org/wiki/Q2076109",   # Moratalaz
-    "38": "https://www.wikidata.org/wiki/Q2420839",   # Cuatro Caminos
+
+    "1":  "https://www.wikidata.org/wiki/Q8841582",      # Pº. Recoletos (001)
+    "2":  "https://www.wikidata.org/wiki/Q7203711",      # Glta. de Carlos V (002)
+    "4":  "https://www.wikidata.org/wiki/Q776249",       # Plaza España (004)
+    "6":  "https://www.wikidata.org/wiki/Q52084168",     # Pza. Dr. Marañón (006)
+    "7":  "https://www.wikidata.org/wiki/Q16620302",     # Pza. M. de Salamanca (007)
+    "8":  "https://www.wikidata.org/wiki/Q5397501",      # Escuelas Aguirre (008)
+    "9":  "https://www.wikidata.org/wiki/Q30148071",     # Pza. Luca de Tena (009)
+    "11": "https://www.wikidata.org/wiki/Q30467128",     # Av. Ramón y Cajal (011)
+    "12": "https://www.wikidata.org/wiki/Q2056869",      # Pza. Manuel Becerra (012)
+    "14": "https://www.wikidata.org/wiki/Q136805046",    # Pza. Fdez. Ladreda (014)
+    "15": "https://www.wikidata.org/wiki/Q2463399",      # Pza. Castilla (015)
+    "16": "https://www.wikidata.org/wiki/Q2481371",      # Arturo Soria (016)
+    "17": "https://www.wikidata.org/wiki/Q2480338",      # Villaverde Alto (017)
+    "19": "https://www.wikidata.org/wiki/Q136805075",    # Huerta Castañeda (019)
+    "21": "https://www.wikidata.org/wiki/Q26791536",     # Pza. Cristo Rey (021)
+    "22": "https://www.wikidata.org/wiki/Q26737156",     # Pº. Pontones (022)
+    "23": "https://www.wikidata.org/wiki/Q2424746",      # Final C/ Alcalá (023)
+    "24": "https://www.wikidata.org/wiki/Q568579",       # Casa de Campo (024)
+    "25": "https://www.wikidata.org/wiki/Q5847173",      # Santa Eugenia (025)
+    "26": "https://www.wikidata.org/wiki/Q136805083",    # Urb. Embajada (Barajas) (026)
+    "27": "https://www.wikidata.org/wiki/Q2474414",      # Barajas (027)
+    "35": "https://www.wikidata.org/wiki/Q6080406",      # Plaza del Carmen (035)
+    "36": "https://www.wikidata.org/wiki/Q2076109",      # Moratalaz (036)
+    "38": "https://www.wikidata.org/wiki/Q2420839",      # Cuatro Caminos (038)
+    "39": "https://www.wikidata.org/wiki/Q2463533",      # Barrio del Pilar (039)
+    "40": "https://www.wikidata.org/wiki/Q5548317",      # Vallecas (040)
+    "47": "https://www.wikidata.org/wiki/Q2479775",      # Méndez Álvaro (047)
+    "48": "https://www.wikidata.org/wiki/Q1473674",      # Pº. Castellana (048)
+    "49": "https://www.wikidata.org/wiki/Q2056874",      # Retiro (049)
+    "50": "https://www.wikidata.org/wiki/Q2463399",      # Pza. Castilla (050) — igual que 15
+    "54": "https://www.wikidata.org/wiki/Q3847485",      # Ensanche de Vallecas (054)
+    "55": "https://www.wikidata.org/wiki/Q136805083",    # Urb. Embajada (Barajas) (055) — igual que 26
+    "56": "https://www.wikidata.org/wiki/Q782113",       # Plaza Elíptica (056)
+    "57": "https://www.wikidata.org/wiki/Q3076623",      # Sanchinarro (057)
+    "58": "https://www.wikidata.org/wiki/Q3314337",      # El Pardo (058)
+    "59": "https://www.wikidata.org/wiki/Q1583169",      # Juan Carlos I (059)
+    "60": "https://www.wikidata.org/wiki/Q608766",       # Tres Olivos (060)
+    "102": "https://www.wikidata.org/wiki/Q56191300",    # J.M.D. Moratalaz
+    "103": "https://www.wikidata.org/wiki/Q56190652",    # J.M.D. Villaverde
+    "104": "https://www.wikidata.org/wiki/Q136805096",   # E.D.A.R. La China
+    "106": "https://www.wikidata.org/wiki/Q136804907",   # Centro Mpal. De Acústica
+    "107": "https://www.wikidata.org/wiki/Q56190091",    # J.M.D. Hortaleza
+    "108": "https://www.wikidata.org/wiki/Q2058663",     # Peñagrande
+    "109": "https://www.wikidata.org/wiki/Q56164429",    # J.M.D. Chamberí
+    "110": "https://www.wikidata.org/wiki/Q56164302",    # J.M.D. Centro
+    "111": "https://www.wikidata.org/wiki/Q56192459",    # J.M.D. Chamartín
+    "112": "https://www.wikidata.org/wiki/Q56191978",    # J.M.D. Vallecas 1
+    "113": "https://www.wikidata.org/wiki/Q56191848",    # J.M.D. Vallecas 2
+    "114": "https://www.wikidata.org/wiki/Q4043800",     # Matadero 01
+    "115": "https://www.wikidata.org/wiki/Q105776403",   # Matadero 02
 }
+
 
 def get_measurements_with_linked_data(estacion=None, magnitud=None, limit=100):
     """
@@ -352,14 +396,14 @@ def get_aggregated_statistics(estacion=None, magnitud=None, fecha=None):
 
 def get_available_stations():
     """
-    Obtiene la lista de estaciones únicas disponibles en el dataset.
-    Útil para poblar desplegables en la interfaz.
-    
-    Returns:
-        list: Lista de IDs de estaciones ordenadas numéricamente
+    Obtiene la lista de estaciones únicas disponibles en el dataset,
+    combinando:
+      - Estaciones que aparecen en las mediciones del RDF
+      - Estaciones presentes en el diccionario ESTACION_LINKS
+    Devuelve una lista de IDs de estaciones ordenadas numéricamente.
     """
     g = load_graph()
-    
+
     query = PREFIX + """
     SELECT DISTINCT ?estacion
     WHERE {
@@ -368,18 +412,22 @@ def get_available_stations():
     }
     ORDER BY ?estacion
     """
-    
-    stations = []
+
+    # Estaciones que vienen del RDF
+    stations = set()
     for row in g.query(query):
-        stations.append(str(row.estacion))
-    
-    # Ordenar numéricamente (en caso de que sean números)
+        stations.add(str(row.estacion))
+
+    # Añadimos también las que están en el diccionario de enlaces
+    stations.update(ESTACION_LINKS.keys())
+
+    # Ordenar numéricamente si se puede; si no, alfabéticamente
     try:
         stations_sorted = sorted(stations, key=lambda x: int(x))
         return stations_sorted
     except ValueError:
-        # Si no son todos números, devolver ordenación alfabética
         return sorted(stations)
+
 
 
 def get_available_magnitudes():
